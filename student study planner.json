@@ -1,0 +1,198 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Student Study Planning Form",
+        "formDescription": "This is a student study planner. Write your details and we will create a complete plan for you.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "placeholder": "Please add your name here",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Year of study",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1st year"
+                  },
+                  {
+                    "option": "2nd year"
+                  },
+                  {
+                    "option": "3rd year"
+                  },
+                  {
+                    "option": "4th year"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Field of Interest ",
+              "placeholder": "Please write your field of interest.",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "Please enter your Email address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "preferred study time",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Morning"
+                  },
+                  {
+                    "option": "Evening"
+                  },
+                  {
+                    "option": "Night"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Average study session duration (hour)",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Study completion deadline",
+              "fieldType": "date",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -288,
+        -64
+      ],
+      "id": "f54bd99b-9107-44c6-ba66-e8131b2e0788",
+      "name": "On form submission",
+      "webhookId": "1a4d6112-a8af-4eed-989d-6675cce5c4b3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create a study plan for  {{ $json.Name }}, who  is studying in{{ $json['Year of study'] }}.Their field of interest is {{ $json['Field of Interest '] }}. their preferred study time is {{ $json['preferred study time'] }} and average study duration is {{ $json['Average study session duration (hour)'] }}. study completion deadline is {{ $json['Study completion deadline'] }}. now make a study plan and send it to {{ $json.Email }}. \n\nmake sure you create bullet points for each topics and subtopics and duration for them each. please try to make tables too and give very detailed study plan. and also please use the gmail tool to send the mail.",
+        "options": {
+          "systemMessage": "You are a helpful student study planner that helps student to plan their academic life ahead with precise and efficient timing according to their need."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -80,
+        -64
+      ],
+      "id": "08819d98-fe18-48c1-b033-a76d5ecd11f4",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3-flash-preview",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        144
+      ],
+      "id": "2bd4d493-b7b3-412d-859a-5445c5910a8e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "f4fxG13NvQFFFRJb",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "=study plan for {{ $json.Name }} who is interestedin {{ $json['Field of Interest '] }}.",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        240,
+        128
+      ],
+      "id": "22b02ea0-d875-4190-8fe5-d3a2c307c643",
+      "name": "Send a message in Gmail",
+      "webhookId": "ee71069a-7afe-4bb3-b142-795dac28a72e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "KwUebCf9nge6e6cX",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "74972cdb-fcd7-4f1e-b386-86590e12314b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f544ca700037d53104efd58f466dc025b973d2b4ee993595920a3bfa5408ebfe"
+  },
+  "id": "z7gXXL6uCWDVtI62",
+  "tags": []
+}
